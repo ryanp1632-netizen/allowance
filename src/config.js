@@ -16,11 +16,43 @@ const AI_PROVIDERS = {
   },
 };
 
+// SAFETY LOCK: the PayPal sandbox address is fixed in code. Sandbox money is
+// fake, so Allowance can never move real money. There is deliberately no
+// setting that switches to the live PayPal API.
+export const PAYPAL_SANDBOX_BASE = 'https://api-m.sandbox.paypal.com';
+
+// Throws unless `url` points exactly at the PayPal sandbox host over HTTPS.
+export function assertSandboxUrl(url) {
+  let origin;
+  try {
+    origin = new URL(url).origin;
+  } catch {
+    throw new Error(`Refusing PayPal call: "${url}" is not a valid URL`);
+  }
+  if (origin !== PAYPAL_SANDBOX_BASE) {
+    throw new Error(`Refusing PayPal call to ${origin}: only ${PAYPAL_SANDBOX_BASE} (sandbox) is allowed`);
+  }
+}
+
+// Called at startup. If someone sets PAYPAL_API_BASE in .env to anything other
+// than the sandbox, the app refuses to start instead of silently ignoring it.
+export function assertSandboxEnv(env = process.env) {
+  const configured = env.PAYPAL_API_BASE;
+  if (configured === undefined || configured === '') return;
+  if (configured.replace(/\/+$/, '') !== PAYPAL_SANDBOX_BASE) {
+    throw new Error(
+      `PAYPAL_API_BASE is "${configured}". Allowance only runs against the PayPal sandbox ` +
+        `(${PAYPAL_SANDBOX_BASE}). Remove that line from .env.`,
+    );
+  }
+}
+
 export function paypalConfig() {
+  assertSandboxEnv();
   return {
     clientId: process.env.PAYPAL_CLIENT_ID || '',
     clientSecret: process.env.PAYPAL_CLIENT_SECRET || '',
-    apiBase: process.env.PAYPAL_API_BASE || 'https://api-m.sandbox.paypal.com',
+    apiBase: PAYPAL_SANDBOX_BASE,
   };
 }
 
@@ -45,7 +77,7 @@ export function configStatus() {
   const ai = aiConfig();
   return {
     paypalConfigured: Boolean(pp.clientId && pp.clientSecret),
-    paypalSandbox: pp.apiBase.includes('sandbox'),
+    paypalSandbox: pp.apiBase === PAYPAL_SANDBOX_BASE,
     aiProvider: ai.provider,
     aiModel: ai.model,
     aiConfigured: Boolean(ai.apiKey),

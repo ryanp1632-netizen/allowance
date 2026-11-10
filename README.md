@@ -8,6 +8,8 @@ AI agents are starting to buy things for us. Allowance lets an agent spend real 
 
 Demo story: an agent orders **lunch for a small team** within budget.
 
+> **No real money, ever.** Allowance is hard-locked to the PayPal **sandbox** (fake test money). The sandbox address is fixed in [`src/config.js`](src/config.js), every PayPal request goes through one checked function in [`src/paypal.js`](src/paypal.js), and the app refuses to start if `PAYPAL_API_BASE` points anywhere else. `npm test` proves it.
+
 > Status: in progress for the [PayPal AI Hackathon](https://paypalaihackathon.devpost.com/) (deadline Nov 12, 2026).
 
 ## Tech
@@ -24,6 +26,7 @@ git clone https://github.com/ryanp1632-netizen/allowance.git
 cd allowance
 npm install
 cp .env.example .env     # then fill in the keys below
+npm test                 # proves the app is locked to the PayPal sandbox
 npm run check            # verifies your PayPal + AI keys (never prints them)
 npm start                # open http://localhost:3000
 ```
@@ -35,9 +38,10 @@ npm start                # open http://localhost:3000
 4. Copy **Client ID** into `PAYPAL_CLIENT_ID` and **Secret** into `PAYPAL_CLIENT_SECRET` in `.env`.
 5. In the app's settings, make sure **Payouts** is ticked under features.
 
-### 2. AI key (free)
+### 2. AI key (free tier only, no billing)
 - **Gemini (default):** create a key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) and put it in `GEMINI_API_KEY`.
-- **Groq (optional fallback):** create a key at [console.groq.com/keys](https://console.groq.com/keys), put it in `GROQ_API_KEY`, and set `AI_PROVIDER=groq`.
+  **Do not add a payment method or enable billing** (no "Set up billing" / "Upgrade" in AI Studio, no billing account on the Google Cloud project). A key without billing stays on the free tier: if you hit the free limit you get a "429 rate limit" error, never a charge.
+- **Groq (optional fallback):** create a key at [console.groq.com/keys](https://console.groq.com/keys) on the free plan (no card needed), put it in `GROQ_API_KEY`, and set `AI_PROVIDER=groq`.
 
 ## Test credentials
 Sandbox test accounts for judges will be listed here once the demo is finished. All money is PayPal sandbox money; nothing real is charged.

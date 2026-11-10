@@ -2,7 +2,15 @@
 // Right now it only serves the dashboard page and a status endpoint;
 // guardrails, the agent and PayPal payments get added step by step.
 import express from 'express';
-import { configStatus } from './src/config.js';
+import { configStatus, assertSandboxEnv } from './src/config.js';
+
+// Safety lock: refuse to start unless PayPal is the sandbox (fake money).
+try {
+  assertSandboxEnv();
+} catch (e) {
+  console.error(`\nAllowance will not start: ${e.message}\n`);
+  process.exit(1);
+}
 
 const app = express();
 app.use(express.json());

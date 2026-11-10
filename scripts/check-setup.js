@@ -2,6 +2,7 @@
 //  1. Asks PayPal sandbox for an access token using your client ID + secret.
 //  2. Sends the AI provider a one-line test prompt.
 import { paypalConfig, aiConfig } from '../src/config.js';
+import { getAccessToken } from '../src/paypal.js';
 
 const ok = (msg) => console.log(`  [ok]   ${msg}`);
 const bad = (msg) => console.log(`  [fail] ${msg}`);
@@ -9,28 +10,19 @@ let failures = 0;
 
 async function checkPayPal() {
   console.log('\nPayPal sandbox');
-  const { clientId, clientSecret, apiBase } = paypalConfig();
+  const { clientId, clientSecret, apiBase } = paypalConfig(); // throws if not sandbox
+  ok(`Locked to sandbox: ${apiBase}`);
   if (!clientId || !clientSecret) {
     bad('PAYPAL_CLIENT_ID or PAYPAL_CLIENT_SECRET is empty in .env');
     return failures++;
   }
-  if (!apiBase.includes('sandbox')) {
-    bad(`PAYPAL_API_BASE is not the sandbox (${apiBase}). This project only uses the sandbox.`);
+  let data;
+  try {
+    data = await getAccessToken();
+  } catch (e) {
+    bad(`${e.message}. Re-copy the Sandbox client ID and secret.`);
     return failures++;
   }
-  const res = await fetch(`${apiBase}/v1/oauth2/token`, {
-    method: 'POST',
-    headers: {
-      Authorization: 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'grant_type=client_credentials',
-  });
-  if (!res.ok) {
-    bad(`PayPal rejected the credentials (HTTP ${res.status}). Re-copy the Sandbox client ID and secret.`);
-    return failures++;
-  }
-  const data = await res.json();
   ok('Got a sandbox access token');
   // The token's scopes tell us which APIs this app may call.
   // Missing Payouts is only a warning: we'd fall back to Orders v2.

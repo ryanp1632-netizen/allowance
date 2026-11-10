@@ -6,7 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node --env-file-if-exists=.env server.js",
-    "check": "node --env-file-if-exists=.env scripts/check-setup.js"
+    "check": "node --env-file-if-exists=.env scripts/check-setup.js",
+    "test": "node --test"
   },
   "engines": {
     "node": ">=22.9"

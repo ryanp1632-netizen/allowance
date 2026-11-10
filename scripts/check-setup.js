@@ -3,6 +3,7 @@
 //  2. Sends the AI provider a one-line test prompt.
 import { paypalConfig, aiConfig } from '../src/config.js';
 import { getAccessToken } from '../src/paypal.js';
+import { chat, modelChain } from '../src/ai.js';
 
 const ok = (msg) => console.log(`  [ok]   ${msg}`);
 const bad = (msg) => console.log(`  [fail] ${msg}`);
@@ -38,22 +39,18 @@ async function checkAI() {
     bad(`${ai.keyVar} is empty in .env`);
     return failures++;
   }
-  const res = await fetch(`${ai.baseUrl}/chat/completions`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${ai.apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: ai.model,
-      messages: [{ role: 'user', content: 'Reply with exactly: Allowance ready' }],
-    }),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    bad(`AI call failed (HTTP ${res.status}): ${text.slice(0, 300)}`);
-    if (res.status === 404 || res.status === 400) await listModels(ai);
+  console.log(`  Try order: ${modelChain().map((c) => c.model).join(' -> ')}`);
+  try {
+    const { message, model } = await chat(
+      { messages: [{ role: 'user', content: 'Reply with exactly: Allowance ready' }] },
+      { log: (line) => console.log(`  [info] ${line}`) },
+    );
+    ok(`${model} replied: "${message.content?.trim()}"`);
+  } catch (e) {
+    bad(e.message);
+    await listModels(ai);
     return failures++;
   }
-  const data = await res.json();
-  ok(`Model replied: "${data.choices?.[0]?.message?.content?.trim()}"`);
 }
 
 // If the default model name is outdated, show which ones this key can use.
@@ -62,7 +59,7 @@ async function listModels(ai) {
   if (!res.ok) return;
   const { data = [] } = await res.json();
   const names = data.map((m) => m.id.replace(/^models\//, '')).filter((n) => /flash|llama|gpt-oss/i.test(n));
-  console.log('  Models available to this key (set one as AI_MODEL in .env):');
+  console.log('  Models available to this key (set AI_MODEL / AI_FALLBACK_MODELS in .env):');
   names.slice(0, 15).forEach((n) => console.log(`    - ${n}`));
 }
 

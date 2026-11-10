@@ -3,16 +3,19 @@
 
 // Both providers speak the same "OpenAI-compatible" chat format,
 // so switching between them is just a different URL, key and model name.
-const AI_PROVIDERS = {
+// fallbackModels are tried when the main model is busy (see src/ai.js).
+export const AI_PROVIDERS = {
   gemini: {
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
     keyVar: 'GEMINI_API_KEY',
     defaultModel: 'gemini-flash-latest',
+    fallbackModels: ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest'],
   },
   groq: {
     baseUrl: 'https://api.groq.com/openai/v1',
     keyVar: 'GROQ_API_KEY',
     defaultModel: 'llama-3.3-70b-versatile',
+    fallbackModels: ['openai/gpt-oss-20b'],
   },
 };
 
@@ -56,8 +59,8 @@ export function paypalConfig() {
   };
 }
 
-export function aiConfig() {
-  const provider = (process.env.AI_PROVIDER || 'gemini').toLowerCase();
+export function aiConfig(env = process.env) {
+  const provider = (env.AI_PROVIDER || 'gemini').toLowerCase();
   const p = AI_PROVIDERS[provider];
   if (!p) {
     throw new Error(`AI_PROVIDER must be one of: ${Object.keys(AI_PROVIDERS).join(', ')}`);
@@ -66,8 +69,8 @@ export function aiConfig() {
     provider,
     baseUrl: p.baseUrl,
     keyVar: p.keyVar,
-    apiKey: process.env[p.keyVar] || '',
-    model: process.env.AI_MODEL || p.defaultModel,
+    apiKey: env[p.keyVar] || '',
+    model: env.AI_MODEL || p.defaultModel,
   };
 }
 

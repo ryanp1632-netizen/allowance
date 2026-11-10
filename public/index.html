@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Allowance</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 3rem auto; padding: 0 1rem; color: #1a1a1a; background: #fafafa; }
+    li { margin: .3rem 0; }
+    .yes { color: #0a7d32; } .no { color: #b3261e; }
+  </style>
+</head>
+<body>
+  <h1>Allowance</h1>
+  <p>A guarded spending wallet for AI agents, on the PayPal sandbox. The dashboard is coming soon.</p>
+  <h2>Setup status</h2>
+  <ul id="status"><li>Loading…</li></ul>
+  <script>
+    fetch('/api/status').then(r => r.json()).then(s => {
+      const row = (label, ok) => `<li class="${ok ? 'yes' : 'no'}">${ok ? '✔' : '✘'} ${label}</li>`;
+      document.getElementById('status').innerHTML =
+        row('PayPal sandbox keys set', s.paypalConfigured) +
+        row(`AI key set (${s.aiProvider}, ${s.aiModel})`, s.aiConfigured);
+    });
+  </script>
+</body>
+</html>

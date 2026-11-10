@@ -1,0 +1,19 @@
+# Secrets: never commit real keys
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Local database and logs
+data/
+*.db
+*.db-journal
+*.log
+
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

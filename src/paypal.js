@@ -18,6 +18,83 @@ export async function getAccessToken() {
   return res.json();
 }
 
+// Cache the token until shortly before it expires.
+let cached = null;
+async function bearer() {
+  if (!cached || Date.now() > cached.expiresAt) {
+    const t = await getAccessToken();
+    cached = { token: t.access_token, expiresAt: Date.now() + (t.expires_in - 60) * 1000 };
+  }
+  return `Bearer ${cached.token}`;
+}
+
+async function api(method, path, body, extraHeaders = {}) {
+  const res = await paypalFetch(path, {
+    method,
+    headers: { Authorization: await bearer(), 'Content-Type': 'application/json', ...extraHeaders },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const detail = data.details?.[0]?.issue || data.name || '';
+    throw new Error(`PayPal ${method} ${path.split('?')[0]} failed (HTTP ${res.status}) ${detail} ${data.message || ''}`.trim());
+  }
+  return data;
+}
+
+const dollars = (cents) => (cents / 100).toFixed(2);
+
+// ---------- Payouts: how the agent pays a seller ----------
+// Sends money from your sandbox business account to the seller's PayPal email.
+// The agent's explanation travels with the payment as the payout note.
+// paymentId doubles as the idempotency key, so a retry can never pay twice.
+export async function sendPayout({ paymentId, receiverEmail, amountCents, note, sellerName }) {
+  const data = await api('POST', '/v1/payments/payouts', {
+    sender_batch_header: {
+      sender_batch_id: `allowance-${paymentId}`,
+      email_subject: 'You received a payment from an Allowance agent',
+      email_message: `Payment for ${sellerName}`,
+    },
+    items: [{
+      recipient_type: 'EMAIL',
+      receiver: receiverEmail,
+      amount: { value: dollars(amountCents), currency: 'USD' },
+      note: note.slice(0, 4000),
+      sender_item_id: paymentId,
+    }],
+  }, { 'PayPal-Request-Id': paymentId });
+  return { batchId: data.batch_header.payout_batch_id, status: data.batch_header.batch_status };
+}
+
+// Looks up a payout to see if it finished (SUCCESS, UNCLAIMED, PENDING, ...).
+export async function getPayout(batchId) {
+  const data = await api('GET', `/v1/payments/payouts/${encodeURIComponent(batchId)}`);
+  const item = data.items?.[0];
+  return { batchStatus: data.batch_header?.batch_status, itemStatus: item?.transaction_status, transactionId: item?.transaction_id };
+}
+
+// ---------- Orders v2: how YOU top up the agent's allowance ----------
+export async function createOrder(amountCents) {
+  const data = await api('POST', '/v2/checkout/orders', {
+    intent: 'CAPTURE',
+    purchase_units: [{
+      description: 'Allowance top-up for your AI agent',
+      amount: { currency_code: 'USD', value: dollars(amountCents) },
+    }],
+  });
+  return data.id;
+}
+
+export async function captureOrder(orderId) {
+  const data = await api('POST', `/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`, {});
+  const capture = data.purchase_units?.[0]?.payments?.captures?.[0];
+  return {
+    status: data.status, // COMPLETED when the money arrived
+    amountCents: capture ? Math.round(Number(capture.amount.value) * 100) : 0,
+    currency: capture?.amount?.currency_code,
+  };
+}
+
 // Wraps fetch: builds the URL from the fixed sandbox base and re-checks it
 // right before sending, so a bug elsewhere can't point a payment at live PayPal.
 export function paypalFetch(path, options = {}) {

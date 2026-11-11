@@ -118,7 +118,8 @@ function renderSellers(sellers) {
   sellersKey = key;
   $('sellers').innerHTML = sellers.map((s) => `
     <li><input type="checkbox" id="sel-${esc(s.id)}" data-seller="${esc(s.id)}" ${s.approved ? 'checked' : ''}>
-      <label for="sel-${esc(s.id)}">${esc(s.name)} <small>${esc(s.category)}</small></label></li>`).join('');
+      <div><label for="sel-${esc(s.id)}">${esc(s.name)} <small>${esc(s.category)}</small></label>
+        <details><summary class="small muted">Seller's listing (written by the seller)</summary><span class="small">${esc(s.description)}</span></details></div></li>`).join('');
 }
 
 $('sellers').addEventListener('change', async (e) => {

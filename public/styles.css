@@ -110,7 +110,10 @@ textarea { min-height: 72px; resize: vertical; }
 /* ---- rules ---- */
 .rules { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
 .sellers { list-style: none; padding: 0; margin: .75rem 0 0; display: grid; gap: .35rem; }
-.sellers li { display: flex; align-items: center; gap: .5rem; font-size: .9rem; }
+.sellers li { display: flex; align-items: flex-start; gap: .5rem; font-size: .9rem; }
+.sellers input { margin-top: .25rem; }
+.sellers details { margin-top: .15rem; }
+.sellers summary { cursor: pointer; }
 .sellers small { color: var(--muted); }
 
 /* ---- ledger ---- */

@@ -14,8 +14,13 @@ About 390 spoken words at a calm pace. Lines in **[YOUR WORDS]** are yours to fi
 
 ---
 
-## Shot 1: Hook (0:00–0:15)
-**Screen:** you, or the dashboard with the yellow SANDBOX banner.
+## Shot 0: Who I am (optional face cam, 0:00–0:10)
+**Screen:** your face (webcam), then cut to the dashboard.
+**Say:**
+> "Hi, I'm [your first name], a college student at Cal State LA. This week I started using AI agents to do real work for me, like entering coding contests and getting paid, and it made me think hard about trusting AI with money."
+
+## Shot 1: Hook (0:10–0:20)
+**Screen:** the dashboard with the yellow SANDBOX banner.
 **Say:**
 > "AI agents are starting to buy things for us. But giving an agent your PayPal is all or nothing. I built **Allowance**: a PayPal wallet for AI agents where every payment has to be explained, checked, and kept inside your rules."
 >

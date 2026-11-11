@@ -19,7 +19,7 @@ About 390 spoken words at a calm pace. Lines in **[YOUR WORDS]** are yours to fi
 **Say:**
 > "AI agents are starting to buy things for us. But giving an agent your PayPal is all or nothing. I built **Allowance**: a PayPal wallet for AI agents where every payment has to be explained, checked, and kept inside your rules."
 >
-> **[YOUR WORDS: one line on why you care.]**
+> "I'm a college student, and when I started letting AI do real work for me, my first question was: how do I make sure it can't spend my money?"
 
 ## Shot 2: Top up with PayPal Checkout (0:15–0:35)
 **Screen:** Top-up card → type 100 → click the PayPal button → sandbox login → Pay → toast "Added $100.00", balance shows $100.00.

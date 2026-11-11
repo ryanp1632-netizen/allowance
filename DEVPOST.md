@@ -16,7 +16,7 @@
 
 AI agents are starting to shop for us, but handing an agent your payment account is all or nothing. Either it can spend, or it can't. Nobody gives a new intern the company card without a limit and a receipt policy, so why give one to an AI that can be fooled by a line of text on a web page?
 
-**[YOUR WORDS: one or two sentences on why this matters to you personally. For example, a time you worried about an app or bot spending money, or a group order that went wrong.]**
+I'm a college student at Cal State LA, and this week I started letting AI agents do real work for me: entering coding contests and even getting paid in crypto. The first thing I kept asking was "make sure it can't spend my money." I wanted the agent to be useful without me having to just trust it, and that's what Allowance is.
 
 ## What it does
 
@@ -50,7 +50,7 @@ Demo story: an agent orders **lunch for a team of 4** (one vegetarian, drinks in
 - **The agent was bad at arithmetic.** It kept paying totals that didn't match the menu and got blocked again and again. Fix: a `quote_order` tool that returns the exact total, plus a circuit breaker that pauses an agent after 3 blocked payments.
 - **Free-tier AI is unreliable.** The main Gemini models returned "high demand" errors for hours, and one older model was retired for new keys. I built automatic fallback, and made the auditor fail safe: if no AI can score a payment, it goes to a human instead of going through.
 
-**[YOUR WORDS: anything that was hard for you personally, e.g. learning PayPal's sandbox, or a bug you remember.]**
+For me personally, the hardest part was all the setup before any code ran: my first time in the PayPal developer dashboard, figuring out sandbox vs. live keys and test accounts, keeping my keys out of GitHub, and building it in about three days around school.
 
 ## Accomplishments that I'm proud of
 
@@ -58,7 +58,7 @@ Demo story: an agent orders **lunch for a team of 4** (one vegetarian, drinks in
 - Two real PayPal flows working together: Checkout to fund the wallet, Payouts for the agent to spend it.
 - Rules that are easy to explain and covered by tests (20 passing), and a dashboard where every decision shows its reasons.
 
-**[YOUR WORDS: what you're proudest of.]**
+What I'm proudest of is watching the agent fall for the fake taco fee and seeing Allowance block it anyway. That's the whole idea working: you don't have to trust the AI if the wallet checks its work.
 
 ## What I learned
 
@@ -66,7 +66,7 @@ Demo story: an agent orders **lunch for a team of 4** (one vegetarian, drinks in
 - Don't let one AI grade its own work: the auditor is a separate call that only sees the facts.
 - Fail safe beats fail open, especially with free-tier AI that goes down.
 
-**[YOUR WORDS: something you learned about PayPal, AI or building fast.]**
+I came in as a beginner with AI agents and had never used PayPal's APIs. I learned how PayPal's sandbox, Checkout and Payouts work behind the scenes, and that an AI can be tricked by one hidden sentence on a web page, so safety has to be built around it, not left to the AI.
 
 ## What's next for Allowance
 
@@ -81,7 +81,7 @@ Demo story: an agent orders **lunch for a team of 4** (one vegetarian, drinks in
 |---|---|
 | **Google Gemini API** (free tier; `gemini-flash-latest` with automatic fallback to `gemini-3.5-flash-lite` / `gemini-flash-lite-latest`) | 1) The shopping agent: plans the order and calls tools (browse sellers, read menus, get quotes, pay). 2) The independent payment auditor: reads each payment's facts and the agent's explanation and returns a 0–100 risk score with reasons. |
 | **Groq** (optional, free tier) | Fallback AI provider if Gemini is unavailable, set with one `.env` line. |
-| **Claude Code** (AI coding assistant) | **[YOU DECIDE: keep and edit this line if you want to disclose it.]** Helped write and test code while I made the product and design decisions. |
+| **Claude Code** (AI coding assistant) | Helped write and test the code while I made the product and design decisions: the explain-before-pay idea, the team-lunch demo, using a second AI as auditor, and adding AG Grid. |
 
 ## How judges can try it
 
